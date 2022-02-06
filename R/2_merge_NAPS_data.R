@@ -31,3 +31,60 @@ pols_list <- lapply(
     skip = 5L
 )
 
+
+# Updates names ----------------------------------------------------------------
+
+
+# Note : Some dataset have 32 columns, other have 31. Names differ from datasets,
+#        but the information is the same. Here, we harmonize all datasets.
+
+# For datasets with 32 columns.
+which_lines_32 <- which(lengths(pols_list) == 32L)
+pols_list[which_lines_32] <- lapply(
+    X   = pols_list[which_lines_32],
+    FUN = function(x) {
+        names(x) <- names(pols_list[[21L]])
+        x
+    }
+)
+
+# For datassets with 31 columns.
+which_lines_31 <- which(lengths(pols_list) == 31L)
+pols_list[which_lines_31] <- lapply(
+    X   = pols_list[which_lines_31],
+    FUN = function(x) {
+        names(x) <- names(pols_list[[1]])
+        x$Method <- NA
+        x
+    }
+)
+
+
+# Fix dates --------------------------------------------------------------------
+
+
+pols_list <- lapply(
+    X   = pols_list,
+    FUN = function(x) {
+        if ("Date" %in% class(x$Date)){
+           data.table::set(
+               x     = x,
+               j     = "Date",
+               value = as.integer(gsub("-", "", as.character(x$Date)))
+            )
+        }
+    }
+)
+
+
+# Merge and export -------------------------------------------------------------
+
+
+# Merge.
+pols_dt <- data.table::rbindlist(pols_list, use.names = TRUE)
+
+# Export.
+qs::qsave(
+    pols_dt, file.path("data", "NAPS_cleaned.qs")
+)
+
