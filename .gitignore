@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+data/*
+!data/naps_stations.xlsx
