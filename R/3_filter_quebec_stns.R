@@ -84,3 +84,29 @@ by = c("NAPSID", "RNAME", "NAME")]
 # Convert to Markdown table.
 knitr::kable(POLATM_QC_STATS[, -c("LONG", "LAT")])
 
+
+# Maps stations with basic information -----------------------------------------
+
+
+# Leaflet map.
+leaflet::leaflet(
+)  %>%
+leaflet::addProviderTiles(
+    provider = leaflet::providers$CartoDB.Voyager
+) %>%
+leaflet::addCircleMarkers(
+    data         = POLATM_QC_STATS,
+    lng          = ~ LONG,
+    lat          = ~ LAT,
+    radius       = 5,
+    stroke       = TRUE,
+    color        = "black",
+    weight       = 1.6,
+    opacity      = 0.8,
+    fillColor    = "orange",
+    fillOpacity  = 1L,
+    label        = ~ NAME,
+    labelOptions = leaflet::labelOptions(noHide = TRUE)
+)
+
+
