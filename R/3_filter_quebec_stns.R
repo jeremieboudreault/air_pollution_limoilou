@@ -30,3 +30,21 @@ STNS <- data.table::setDT(openxlsx::read.xlsx(
     startRow = 2L
 ))
 
+
+# Filter stations in Quebec ----------------------------------------------------
+
+
+# Extract STNS in Quebec.
+STNS_QC <- STNS[Ville == "QUEBEC", c(
+    "Identifiant_SNPA",
+    "Nom.de.la.station"
+)]
+
+# Rename the columns.
+names(STNS_QC) <- c("NAPSID", "RNAME")
+STNS_QC$NAPSID <- as.integer(STNS_QC$NAPSID)
+
+# Rename somes stations.
+STNS_QC[RNAME == "QUÉBEC-VIEUX-LIMOILOU (DES SABLES)", NAME := "Vieux-Limoilou"]
+STNS_QC[RNAME == "QUÉBEC- COLLÈGE ST-CHARLES-GARNIER", NAME := "Montcalm"]
+STNS_QC[RNAME == "QUÉBEC-ÉCOLE LES PRIMEVÈRES",        NAME := "Champigny"]
