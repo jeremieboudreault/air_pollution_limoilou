@@ -83,6 +83,21 @@ pols_list <- lapply(
 # Merge.
 pols_dt <- data.table::rbindlist(pols_list, use.names = TRUE)
 
+# Replace 999 with NAs.
+cols <- c(paste0("H0", 1:9), paste0("H", 10:24))
+
+# Replace -999 by NA.
+for (i in seq.int(1L, 24L)) {
+    col <- cols[i]
+    data.table::set(
+        x = pols_dt,
+        i = which(pols_dt[[col]] == -999L),
+        j = col,
+        value = NA
+    )
+}
+
+
 # Export.
 qs::qsave(
     pols_dt, file.path("data", "NAPS_cleaned.qs")
