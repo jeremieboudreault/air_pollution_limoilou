@@ -48,3 +48,18 @@ STNS_QC$NAPSID <- as.integer(STNS_QC$NAPSID)
 STNS_QC[RNAME == "QUÉBEC-VIEUX-LIMOILOU (DES SABLES)", NAME := "Vieux-Limoilou"]
 STNS_QC[RNAME == "QUÉBEC- COLLÈGE ST-CHARLES-GARNIER", NAME := "Montcalm"]
 STNS_QC[RNAME == "QUÉBEC-ÉCOLE LES PRIMEVÈRES",        NAME := "Champigny"]
+
+
+# Subset polluants measurements in Quebec city ---------------------------------
+
+
+# Subset pollution data in Quebec.
+POLATM_QC <- POLATM[NAPSID %in% STNS_QC$NAPSID, ]
+
+# Add <NAME> and <DESC>.
+POLATM_QC <- data.table::merge.data.table(
+    x     = POLATM_QC,
+    y     = STNS_QC,
+    all.x = TRUE,
+    by    = "NAPSID"
+)
