@@ -13,6 +13,8 @@
 
 
 library(data.table)
+library(leaflet)
+library(openxlsx)
 library(qs)
 
 
@@ -24,8 +26,7 @@ POLATM <- qs::qread(file.path("data", "NAPS_cleaned.qs"))
 
 # Load stations.
 STNS <- data.table::setDT(openxlsx::read.xlsx(
-    file.path("data", "StationsNAPS-StationsSNPA.xlsx"),
+    xlsxFile = file.path("data", "naps_stations.xlsx"),
     startRow = 2L
 ))
-
 
