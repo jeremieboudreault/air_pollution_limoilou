@@ -63,3 +63,24 @@ POLATM_QC <- data.table::merge.data.table(
     all.x = TRUE,
     by    = "NAPSID"
 )
+
+
+# Summary statistics -----------------------------------------------------------
+
+
+# Extract number of observations per stations.
+POLATM_QC_STATS <- POLATM_QC[, .(
+    O3    = sum(Pollutant == "O3",    na.rm = TRUE),
+    NO2   = sum(Pollutant == "NO2",   na.rm = TRUE),
+    SO2   = sum(Pollutant == "SO2",   na.rm = TRUE),
+    CO    = sum(Pollutant == "CO",    na.rm = TRUE),
+    PM25  = sum(Pollutant == "PM2.5", na.rm = TRUE),
+    PM10  = sum(Pollutant == "PM10",  na.rm = TRUE),
+    LONG  = unique(Longitude),
+    LAT   = unique(Latitude)
+),
+by = c("NAPSID", "RNAME", "NAME")]
+
+# Convert to Markdown table.
+knitr::kable(POLATM_QC_STATS[, -c("LONG", "LAT")])
+
