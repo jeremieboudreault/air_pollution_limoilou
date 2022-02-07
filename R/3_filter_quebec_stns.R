@@ -110,3 +110,8 @@ leaflet::addCircleMarkers(
 )
 
 
+# Exports ----------------------------------------------------------------------
+
+
+qs::qsave(POLATM_QC, file.path("data", "NAPS_cleaned_qc.qs"))
+
