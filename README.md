@@ -35,6 +35,9 @@ __Figure 1 : Localisation des stations__
 Résultats
 --------------------------------------------------------------------------------
 
+Distribution des 3 polluants (O3, PM2.5 et NO2) disponibles aux trois stations de Québec pour la période 2000-2019 :
+
+![](out/boxplots.png)
 
 
 Conclusion
