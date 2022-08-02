@@ -36,20 +36,13 @@ __Tableau 1 : Stations du réseau NAPS dans la ville de Québec__
 Résultats
 --------------------------------------------------------------------------------
 
-**Figure 2** : Distribution des 3 polluants (O3, PM2.5 et NO2) disponibles aux trois stations de Québec pour la période 2000-2019
+**Figure 2.1** : Distribution des concentration maximales quotidiennes de 3 polluants à Québec
 
-![](out/boxplots.jpg)
+![](plots/fig_2_1_boxplots_max.jpg)
 
+**Figure 2.2** : Distribution des concentration moyennes quotidiennes de 3 polluants à Québec
 
-Conclusion
---------------------------------------------------------------------------------
-
-
-
-Pistes futures
---------------------------------------------------------------------------------
-
-
+![](plots/fig_2_2_boxplots_moy.jpg)
 
 
 **Enjoy !** ✌🏻
