@@ -39,7 +39,7 @@ url_str_1 <- paste0(
 url_str_2 <- "/ContinuousData-DonneesContinu/HourlyData-DonneesHoraires/"
 
 
-# Download ---------------------------------------------------------------------
+# Download data ----------------------------------------------------------------
 
 
 # Loop on all pollutants.
@@ -76,3 +76,17 @@ for (pol_type in pol_types) {
 
     }
 }
+
+
+# Download NAPS stations -------------------------------------------------------
+
+
+download.file(
+    url = paste0(
+        "https://data-donnees.ec.gc.ca/data/air/monitor/",
+        "national-air-pollution-surveillance-naps-program/",
+        "ProgramInformation-InformationProgramme/StationsNAPS-StationsSNPA.csv"
+    ),
+    destfile = "data/naps/naps_stations.csv",
+)
+
