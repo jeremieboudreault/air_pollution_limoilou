@@ -1,10 +1,10 @@
-# 1_download_NAPS_data.R
+# 1_download_naps_data.R
 
 
 # Project : pollution_air_limoilou
 # Author  : Jeremie Boudreault
-# Email   : jeremie [dot] bodreault [at] inrs [dot] ca
-# Depends : R (v4.1.2)
+# Email   : Prenom.Nom@inrs.ca
+# Depends : R (v4.2.1)
 # License : None
 
 
@@ -18,8 +18,8 @@ library(data.table)
 # Set the parameters for download ----------------------------------------------
 
 
-# Years to be downloaded. (2020 and 2021 are not available)
-years <- seq.int(2000L, 2019L)
+# Years to be downloaded.
+years <- seq.int(1979L, 2022L)
 
 # Air pollutants to be downloaded. (These are the classic ones)
 pol_types <- c("O3", "PM25", "PM10", "NO2", "SO2", "CO")
@@ -48,14 +48,31 @@ for (pol_type in pol_types) {
     # Loop on all years.
     for (year in years) {
 
+        # Message.
+        msg <- paste0("Downloading ", pol_type, " for ", year, ".")
+
         # Set the filename (example : O3_2019.csv)
         filename <- paste0(pol_type, "_", year, ".csv")
 
-        # Download the file from the URL (files are located in data/NAPS/)
-        download.file(
-            url      = paste0(url_str_1, year, url_str_2, filename),
-            destfile = file.path("data", "NAPS", filename)
+        # Download the file from the URL.
+        tryCatch(
+            expr = { download.file(
+                url      = paste0(url_str_1, year, url_str_2, filename),
+                destfile = file.path("data", "naps", "raw", filename),
+                quiet    = TRUE
+            )},
+            error   = function(w) {
+                assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
+                file.remove(file.path("data", "naps", "raw", filename))
+            },
+            warning = function(w) {
+                assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
+                file.remove(file.path("data", "naps", "raw", filename))
+            }
         )
+
+        # Message
+        message(msg)
 
     }
 }
