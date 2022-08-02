@@ -116,5 +116,10 @@ leaflet::addCircleMarkers(
 # Exports ----------------------------------------------------------------------
 
 
-qs::qsave(POLATM_QC, file.path("data", "naps", "naps_cleaned_qc.qs"))
+data.table::fwrite(
+    x    = POLATM_QC,
+    file = file.path("data", "naps", "naps_cleaned_qccity.csv"),
+    sep  = ";",
+    dec  = ","
+)
 
