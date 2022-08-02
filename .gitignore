@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-data/*
-!data/naps_stations.xlsx
+README.html
+data/naps/raw/*
+data/naps/naps_cleaned.qs
