@@ -3,8 +3,8 @@
 
 # Project : pollution_air_limoilou
 # Author  : Jeremie Boudreault
-# Email   : jeremie [dot] bodreault [at] inrs [dot] ca
-# Depends : R (v4.1.2)
+# Email   : Prenom.Nom@inrs.ca
+# Depends : R (v4.2.1)
 # License : None
 
 
@@ -14,7 +14,6 @@
 
 library(data.table)
 library(leaflet)
-library(openxlsx)
 library(qs)
 
 
@@ -22,39 +21,37 @@ library(qs)
 
 
 # Load data.
-POLATM <- qs::qread(file.path("data", "NAPS_cleaned.qs"))
+POLATM <- qs::qread(file.path("data", "naps", "naps_cleaned.qs"))
 
 # Load stations.
-STNS <- data.table::setDT(openxlsx::read.xlsx(
-    xlsxFile = file.path("data", "naps_stations.xlsx"),
-    startRow = 2L
-))
+STNS <- data.table::fread(
+    input = file.path("data", "naps", "naps_stations.csv"),
+    sep   = ",",
+    fill  = TRUE,
+    skip  = 4L
+)
+
+# Remove unwanted rows.
+i <- which(STNS$Identifiant_SNPA == "**********Definitions_Définitions**********")
+STNS <- STNS[-(i:nrow(STNS)), ]
 
 
 # Filter stations in Quebec ----------------------------------------------------
 
 
 # Extract STNS in Quebec.
-STNS_QC <- STNS[Ville == "QUEBEC", c(
-    "Identifiant_SNPA",
-    "Nom.de.la.station"
-)]
+STNS_QC <- STNS[Ville == "QUEBEC", c("Identifiant_SNPA", "Nom de la station")]
 
 # Rename the columns.
 names(STNS_QC) <- c("NAPSID", "RNAME")
 STNS_QC$NAPSID <- as.integer(STNS_QC$NAPSID)
-
-# Rename somes stations.
-STNS_QC[RNAME == "QUÉBEC-VIEUX-LIMOILOU (DES SABLES)", NAME := "Vieux-Limoilou"]
-STNS_QC[RNAME == "QUÉBEC- COLLÈGE ST-CHARLES-GARNIER", NAME := "Montcalm"]
-STNS_QC[RNAME == "QUÉBEC-ÉCOLE LES PRIMEVÈRES",        NAME := "Champigny"]
 
 
 # Subset polluants measurements in Quebec city ---------------------------------
 
 
 # Subset pollution data in Quebec.
-POLATM_QC <- POLATM[NAPSID %in% STNS_QC$NAPSID, ]
+POLATM_QC <- POLATM[NAPSID %in% STNS_QC$NAPSID & Date > "2010-01-01", ]
 
 # Add <NAME> and <DESC>.
 POLATM_QC <- data.table::merge.data.table(
@@ -68,6 +65,12 @@ POLATM_QC <- data.table::merge.data.table(
 # Summary statistics -----------------------------------------------------------
 
 
+# Add <NAME>.
+POLATM_QC[RNAME == "QUÉBEC-VIEUX-LIMOILOU (DES SABLES)", NAME := "Vieux-Limoilou"]
+POLATM_QC[RNAME == "QUÉBEC- COLLÈGE ST-CHARLES-GARNIER", NAME := "Montcalm"]
+POLATM_QC[RNAME == "QUÉBEC-ÉCOLE LES PRIMEVÈRES",        NAME := "Champigny"]
+POLATM_QC[RNAME == "QUÉBEC - HENRI IV",                  NAME := "Henry IV"]
+
 # Extract number of observations per stations.
 POLATM_QC_STATS <- POLATM_QC[, .(
     O3    = sum(Pollutant == "O3",    na.rm = TRUE),
@@ -76,8 +79,8 @@ POLATM_QC_STATS <- POLATM_QC[, .(
     CO    = sum(Pollutant == "CO",    na.rm = TRUE),
     PM25  = sum(Pollutant == "PM2.5", na.rm = TRUE),
     PM10  = sum(Pollutant == "PM10",  na.rm = TRUE),
-    LONG  = unique(Longitude),
-    LAT   = unique(Latitude)
+    LONG  = mean(Longitude),
+    LAT   = mean(Latitude)
 ),
 by = c("NAPSID", "RNAME", "NAME")]
 
@@ -113,5 +116,5 @@ leaflet::addCircleMarkers(
 # Exports ----------------------------------------------------------------------
 
 
-qs::qsave(POLATM_QC, file.path("data", "NAPS_cleaned_qc.qs"))
+qs::qsave(POLATM_QC, file.path("data", "naps", "naps_cleaned_qc.qs"))
 
