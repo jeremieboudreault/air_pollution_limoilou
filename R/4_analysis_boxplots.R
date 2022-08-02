@@ -3,8 +3,9 @@
 
 # Project : pollution_air_limoilou
 # Author  : Jeremie Boudreault
-# Email   : jeremie [dot] bodreault [at] inrs [dot] ca
-# Depends : R (v4.1.2)
+# Email   : Prenom.Nom@inrs.ca
+# Depends : R (v4.2.1)
+# Imports : jtheme (https://github.com/jeremieboudreault/jtheme)
 # License : None
 
 
@@ -13,19 +14,19 @@
 
 library(data.table)
 library(ggplot2)
-library(qs)
+library(jtheme)
 
 
 # Imports ----------------------------------------------------------------------
 
 
-POLATM_QC <- qs::qread(file.path("data", "NAPS_cleaned_qc.qs"))
+POLATM_QC <- data.table::fread("data/naps/naps_cleaned_qccity.csv", dec = ",")
 
 
-# Filter out pollutant only availble at Vieux Limoilou station -----------------
+# Filter out pollutant only available at Vieux Limoilou station ----------------
 
 
-POLATM_QC <- POLATM_QC[!(Pollutant %in% c("CO", "SO2"))]
+POLATM_QC <- POLATM_QC[!(Pollutant %in% c("CO", "SO2")), ]
 
 
 # Compute daily metrics --------------------------------------------------------
@@ -48,8 +49,9 @@ POLATM_QC_MELT <- data.table::melt.data.table(
 # Rename columns.
 names(POLATM_QC_MELT) <- c("NAME", "POL", "DATE", "VAR", "VALUE")
 
-# Convert date to Date format.
-POLATM_QC_MELT[, DATE := as.Date(as.character(DATE), format = "%Y%m%d")]
+# Rename lavels.
+POLATM_QC_MELT[VAR == "MAX_24H", VAR := "Maximum sur 24h"]
+POLATM_QC_MELT[VAR == "MEAN_24H", VAR := "Moyenne sur 24h"]
 
 
 # Plot :: Boxplot of pollutants concentration ----------------------------------
@@ -57,7 +59,7 @@ POLATM_QC_MELT[, DATE := as.Date(as.character(DATE), format = "%Y%m%d")]
 
 # Plot.
 ggplot(
-    data    = POLATM_QC_MELT,
+    data    = POLATM_QC_MELT[VAR == "Maximum sur 24h", ],
     mapping = aes(
         x = NAME,
         y = VALUE
@@ -69,22 +71,50 @@ geom_boxplot(
 ) +
 facet_grid(
     facets = POL ~ VAR,
-    scales = "free",
+    scales = "free_y",
 
 ) +
 scale_fill_manual(
-    values = RColorBrewer::brewer.pal(3L, "Accent")
+    values = RColorBrewer::brewer.pal(4L, "Accent")
 ) +
 labs(
-    title    = "Concentration de polluants atmosphériques dans trois station de la Ville de Québec",
-    subtitle = "Moyenne et maximum sur 24h (2010-2019)",
+    title    = "Concentration de polluants atmosphériques dans la Ville de Québec",
     x        = "Quartier",
     y        = "Concentration du polluant"
-)
+) +
+jtheme(facets = TRUE)
 
 # Save.
-ggplot2::ggsave(
-    filename = file.path("out", "boxplots.jpg"),
-    width    = 8L,
-    height   = 8L
-)
+jtheme::save_ggplot("plots/fig_2_1_boxplots_max.jpg", size = "sqrbig")
+
+
+# Plot.
+ggplot(
+    data    = POLATM_QC_MELT[VAR == "Moyenne sur 24h", ],
+    mapping = aes(
+        x = NAME,
+        y = VALUE
+    )
+) +
+    geom_boxplot(
+        mapping     = aes(fill = NAME),
+        show.legend = FALSE
+    ) +
+    facet_grid(
+        facets = POL ~ VAR,
+        scales = "free",
+
+    ) +
+    scale_fill_manual(
+        values = RColorBrewer::brewer.pal(4L, "Accent")
+    ) +
+    labs(
+        title    = "Concentration de polluants atmosphériques dans la Ville de Québec",
+        x        = "Quartier",
+        y        = "Concentration du polluant"
+    ) +
+    jtheme(facets = TRUE)
+
+# Save.
+jtheme::save_ggplot("plots/fig_2_2_boxplots_moy.jpg", size = "sqrbig")
+
