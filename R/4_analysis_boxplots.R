@@ -5,7 +5,7 @@
 # Author  : Jeremie Boudreault
 # Email   : Prenom.Nom@inrs.ca
 # Depends : R (v4.2.1)
-# Imports : jtheme (https://github.com/jeremieboudreault/jtheme)
+# Imports : jtheme (v0.0.2) [https://github.com/jeremieboudreault/jtheme]
 # License : None
 
 
@@ -82,7 +82,7 @@ labs(
     x        = "Quartier",
     y        = "Concentration du polluant"
 ) +
-jtheme(facets = TRUE)
+jtheme(borders = "all")
 
 # Save.
 jtheme::save_ggplot("plots/fig_2_1_boxplots_max.jpg", size = "sqrbig")
@@ -113,7 +113,7 @@ ggplot(
         x        = "Quartier",
         y        = "Concentration du polluant"
     ) +
-    jtheme(facets = TRUE)
+    jtheme(borders = "all")
 
 # Save.
 jtheme::save_ggplot("plots/fig_2_2_boxplots_moy.jpg", size = "sqrbig")
