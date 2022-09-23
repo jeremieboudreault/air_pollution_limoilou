@@ -18,7 +18,7 @@ library(data.table)
 
 
 # List files.
-files_path <- file.path("data", "naps", "raw")
+files_path <- file.path("/Volumes/ExtDataPhD/naps/")
 files <- list.files(files_path)
 
 # Split files into < 2008 and >= 2009.
