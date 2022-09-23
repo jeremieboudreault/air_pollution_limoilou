@@ -18,6 +18,9 @@ library(data.table)
 # Set the parameters for download ----------------------------------------------
 
 
+# Path to NAPS data.
+naps_path <- "/Volumes/ExtDataPhD/naps/"
+
 # Years to be downloaded.
 years <- seq.int(1979L, 2022L)
 
@@ -58,16 +61,16 @@ for (pol_type in pol_types) {
         tryCatch(
             expr = { download.file(
                 url      = paste0(url_str_1, year, url_str_2, filename),
-                destfile = file.path("data", "naps", "raw", filename),
+                destfile = file.path(naps_path, filename),
                 quiet    = TRUE
             )},
             error   = function(w) {
                 assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
-                file.remove(file.path("data", "naps", "raw", filename))
+                file.remove(file.path(naps_path, filename))
             },
             warning = function(w) {
                 assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
-                file.remove(file.path("data", "naps", "raw", filename))
+                file.remove(file.path(naps_path, filename))
             }
         )
 
