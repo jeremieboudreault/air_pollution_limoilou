@@ -167,5 +167,20 @@ pols_final <- pols_all[, -c(
 
 # Reorder cols.
 data.table::setcolorder(pols_final,
-                        c("NAPSID", "DATE", "POLLUTANT", "MEAN", "MAX", "MIN", "MEAN_WNA", "MAX_WNA", "MIN_WNA", "N_NA")
+    neworder = c("NAPSID", "DATE", "POLLUTANT",
+                 "MEAN", "MAX", "MIN",
+                 "MEAN_WNA", "MAX_WNA", "MIN_WNA", "N_NA"
+    )
 )
+
+
+# Export -----------------------------------------------------------------------
+
+
+data.table::fwrite(
+    x    = pols_final,
+    file = file.path(naps_path, "naps_database_daily.csv"),
+    dec  = ",",
+    sep  = ";"
+)
+
