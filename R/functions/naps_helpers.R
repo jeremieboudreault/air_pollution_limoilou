@@ -1,6 +1,16 @@
 # naps_helpers.R
 
 
+# A collection of variables and functions to work with NAPS data importing.
+
+
+# Project : pollution_air_limoilou
+# Author  : Jeremie Boudreault
+# Email   : Prenom.Nom@inrs.ca
+# Depends : R (v4.2.1)
+# License : None
+
+
 # Columns names ----------------------------------------------------------------
 
 
