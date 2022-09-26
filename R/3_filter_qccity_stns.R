@@ -20,8 +20,15 @@ library(qs)
 # Imports ----------------------------------------------------------------------
 
 
+# Path to NAPS data.
+naps_path <- "/Volumes/ExtDataPhD/naps"
+
 # Load data.
-POLATM <- qs::qread(file.path("data", "naps", "naps_cleaned.qs"))
+POLATM <- data.table::fread(
+    input = file.path(naps_path, "naps_database_daily.csv"),
+    sep   = ";",
+    dec   = ","
+)
 
 # Load stations.
 STNS <- data.table::fread(
@@ -40,10 +47,11 @@ STNS <- STNS[-(i:nrow(STNS)), ]
 
 
 # Extract STNS in Quebec.
-STNS_QC <- STNS[Ville == "QUEBEC", c("Identifiant_SNPA", "Nom de la station")]
+STNS_QC <- STNS[Ville == "QUEBEC", c("Identifiant_SNPA", "Nom de la station",
+                                     "Longitude", "Latitude")]
 
 # Rename the columns.
-names(STNS_QC) <- c("NAPSID", "RNAME")
+names(STNS_QC) <- c("NAPSID", "RNAME", "LONGITUDE", "LATITUDE")
 STNS_QC$NAPSID <- as.integer(STNS_QC$NAPSID)
 
 
@@ -51,7 +59,7 @@ STNS_QC$NAPSID <- as.integer(STNS_QC$NAPSID)
 
 
 # Subset pollution data in Quebec.
-POLATM_QC <- POLATM[NAPSID %in% STNS_QC$NAPSID & Date > "2010-01-01", ]
+POLATM_QC <- POLATM[NAPSID %in% STNS_QC$NAPSID & DATE > "2010-01-01", ]
 
 # Add <NAME> and <DESC>.
 POLATM_QC <- data.table::merge.data.table(
@@ -73,14 +81,14 @@ POLATM_QC[RNAME == "QUÉBEC - HENRI IV",                  NAME := "Henry IV"]
 
 # Extract number of observations per stations.
 POLATM_QC_STATS <- POLATM_QC[, .(
-    O3    = sum(Pollutant == "O3",    na.rm = TRUE),
-    NO2   = sum(Pollutant == "NO2",   na.rm = TRUE),
-    SO2   = sum(Pollutant == "SO2",   na.rm = TRUE),
-    CO    = sum(Pollutant == "CO",    na.rm = TRUE),
-    PM25  = sum(Pollutant == "PM2.5", na.rm = TRUE),
-    PM10  = sum(Pollutant == "PM10",  na.rm = TRUE),
-    LONG  = mean(Longitude),
-    LAT   = mean(Latitude)
+    O3    = sum(POLLUTANT == "O3",    na.rm = TRUE),
+    NO2   = sum(POLLUTANT == "NO2",   na.rm = TRUE),
+    SO2   = sum(POLLUTANT == "SO2",   na.rm = TRUE),
+    CO    = sum(POLLUTANT == "CO",    na.rm = TRUE),
+    PM25  = sum(POLLUTANT == "PM2.5", na.rm = TRUE),
+    PM10  = sum(POLLUTANT == "PM10",  na.rm = TRUE),
+    LONG  = mean(LONGITUDE),
+    LAT   = mean(LATITUDE)
 ),
 by = c("NAPSID", "RNAME", "NAME")]
 
