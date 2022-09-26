@@ -26,32 +26,24 @@ POLATM_QC <- data.table::fread("data/naps/naps_cleaned_qccity.csv", dec = ",")
 # Filter out pollutant only available at Vieux Limoilou station ----------------
 
 
-POLATM_QC <- POLATM_QC[!(Pollutant %in% c("CO", "SO2")), ]
+POLATM_QC <- POLATM_QC[!(POLLUTANT %in% c("CO", "SO2")), ]
 
 
-# Compute daily metrics --------------------------------------------------------
+# Extract daily metrics --------------------------------------------------------
 
-
-# Defines columns for measurements.
-cols <- c(paste0("H0", 1:9), paste0("H",10:24))
-
-# Daily maximum and daily mean.
-POLATM_QC[, MAX_24H  := apply(.SD, 1L, max, na.rm = TRUE),  .SDcols = cols]
-POLATM_QC[, MEAN_24H := apply(.SD, 1L, mean, na.rm = TRUE), .SDcols = cols]
 
 # Melt results.
 POLATM_QC_MELT <- data.table::melt.data.table(
-    data         = POLATM_QC,
-    measure.vars = c("MAX_24H", "MEAN_24H"),
-    id.vars      = c("NAME", "Pollutant", "Date")
+    data          = POLATM_QC,
+    measure.vars  = c("MEAN", "MAX"),
+    id.vars       = c("NAME", "POLLUTANT", "DATE"),
+    variable.name = "METRIC",
+    value.name    = "VALUE"
 )
 
-# Rename columns.
-names(POLATM_QC_MELT) <- c("NAME", "POL", "DATE", "VAR", "VALUE")
-
 # Rename lavels.
-POLATM_QC_MELT[VAR == "MAX_24H", VAR := "Maximum sur 24h"]
-POLATM_QC_MELT[VAR == "MEAN_24H", VAR := "Moyenne sur 24h"]
+POLATM_QC_MELT[METRIC == "MAX", METRIC := "Maximum sur 24h"]
+POLATM_QC_MELT[METRIC == "MEAN", METRIC := "Moyenne sur 24h"]
 
 
 # Plot :: Boxplot of pollutants concentration ----------------------------------
@@ -59,7 +51,7 @@ POLATM_QC_MELT[VAR == "MEAN_24H", VAR := "Moyenne sur 24h"]
 
 # Plot.
 ggplot(
-    data    = POLATM_QC_MELT[VAR == "Maximum sur 24h", ],
+    data    = POLATM_QC_MELT[METRIC == "Maximum sur 24h", ],
     mapping = aes(
         x = NAME,
         y = VALUE
@@ -70,7 +62,7 @@ geom_boxplot(
     show.legend = FALSE
 ) +
 facet_grid(
-    facets = POL ~ VAR,
+    facets = POLLUTANT ~ METRIC,
     scales = "free_y",
 
 ) +
@@ -87,33 +79,32 @@ jtheme(borders = "all")
 # Save.
 jtheme::save_ggplot("plots/fig_2_1_boxplots_max.jpg", size = "sqrbig")
 
-
 # Plot.
 ggplot(
-    data    = POLATM_QC_MELT[VAR == "Moyenne sur 24h", ],
+    data    = POLATM_QC_MELT[METRIC == "Moyenne sur 24h", ],
     mapping = aes(
         x = NAME,
         y = VALUE
     )
 ) +
-    geom_boxplot(
-        mapping     = aes(fill = NAME),
-        show.legend = FALSE
-    ) +
-    facet_grid(
-        facets = POL ~ VAR,
-        scales = "free",
+geom_boxplot(
+    mapping     = aes(fill = NAME),
+    show.legend = FALSE
+) +
+facet_grid(
+    facets = POLLUTANT ~ METRIC,
+    scales = "free",
 
-    ) +
-    scale_fill_manual(
-        values = RColorBrewer::brewer.pal(4L, "Accent")
-    ) +
-    labs(
-        title    = "Concentration de polluants atmosphériques dans la Ville de Québec",
-        x        = "Quartier",
-        y        = "Concentration du polluant"
-    ) +
-    jtheme(borders = "all")
+) +
+scale_fill_manual(
+    values = RColorBrewer::brewer.pal(4L, "Accent")
+) +
+labs(
+    title    = "Concentration de polluants atmosphériques dans la Ville de Québec",
+    x        = "Quartier",
+    y        = "Concentration du polluant"
+) +
+jtheme(borders = "all")
 
 # Save.
 jtheme::save_ggplot("plots/fig_2_2_boxplots_moy.jpg", size = "sqrbig")
