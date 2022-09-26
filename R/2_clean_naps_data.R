@@ -35,3 +35,19 @@ naps_path <- "/Volumes/ExtDataPhD/naps"
 naps_files <- list.files(file.path(naps_path, "raw"))
 
 
+# Create a table of NAPS files -------------------------------------------------
+
+
+# Split files by pollutant and year.
+pol_year <- do.call(cbind, tstrsplit(naps_files, "_")) |>
+    as.data.table() |>
+    setnames(new = c("POL", "YEAR"))
+
+# Fix <YEAR> to integer format.
+pol_year <- pol_year [, YEAR := as.integer(substr(YEAR, 1L, 4L))]
+
+# Summarize the table.
+pol_year_summ <- pol_year[
+    j  = .(YEAR_MIN = min(YEAR), YEAR_MAX = max(YEAR)),
+    by = "POL"
+]
