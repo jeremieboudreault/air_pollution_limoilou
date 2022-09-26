@@ -61,16 +61,16 @@ for (pol_type in pol_types) {
         tryCatch(
             expr = { download.file(
                 url      = paste0(url_str_1, year, url_str_2, filename),
-                destfile = file.path(naps_path, filename),
+                destfile = file.path(naps_path, "raw", filename),
                 quiet    = TRUE
             )},
             error   = function(w) {
                 assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
-                file.remove(file.path(naps_path, filename))
+                file.remove(file.path(naps_path, "raw",  filename))
             },
             warning = function(w) {
                 assign("msg", paste0(msg, " >> No data") , envir = .GlobalEnv)
-                file.remove(file.path(naps_path, filename))
+                file.remove(file.path(naps_path, "raw", filename))
             }
         )
 
