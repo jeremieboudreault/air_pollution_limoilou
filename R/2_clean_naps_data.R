@@ -119,3 +119,28 @@ for (pol in pol_year_summ$POL) {
 
 }
 
+
+# Load all files and create a new database -------------------------------------
+
+
+# Load all files in a list.
+pols <- lapply(
+    X   = file.path(naps_path, paste0(pol_year_summ$POL, ".csv")),
+    FUN = data.table::fread,
+    sep = ";",
+    dec = ","
+)
+
+# Add names.
+names(pols) <- pol_year_summ$POL
+
+# Remove <METHOD> columns for PM2.5.
+pols[["PM25"]][, METHOD := NULL]
+
+# Check for the number, names and format of columns.
+all(alleq(do.call(cbind, lapply(pols, ncol))))
+all(alleq(do.call(cbind, lapply(pols, colnames))))
+all(alleq(do.call(cbind, lapply(pols, getclass))))
+
+# Bind all pollutant.
+pols_all <- data.table::rbindlist(l = pols, use.names = TRUE)
