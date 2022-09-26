@@ -144,3 +144,28 @@ all(alleq(do.call(cbind, lapply(pols, getclass))))
 
 # Bind all pollutant.
 pols_all <- data.table::rbindlist(l = pols, use.names = TRUE)
+
+# Compute <MEAN>, <MAX> and <MIN>.
+pol_mat <- as.matrix(pols_all[, paste0("H", 1:24)])
+pols_all[, MEAN     := apply(pol_mat, 1L, mean, na.rm = FALSE)]
+pols_all[, MAX      := apply(pol_mat, 1L, max,  na.rm = FALSE)]
+pols_all[, MIN      := apply(pol_mat, 1L, min,  na.rm = FALSE)]
+pols_all[, MEAN_WNA := apply(pol_mat, 1L, mean, na.rm = TRUE)]
+pols_all[, MAX_WNA  := apply(pol_mat, 1L, max,  na.rm = TRUE)]
+pols_all[, MIN_WNA  := apply(pol_mat, 1L, min,  na.rm = TRUE)]
+
+# Count number of hourly NAs.
+pols_all[, N_NA     := apply(pol_mat, 1L, function(w) sum(is.na(w)))]
+
+# Fix values when all values are NA.
+pols_all[N_NA == 24L, `:=`(MEAN_WNA = NA, MAX_WNA = NA, MIN_WNA = NA)]
+
+# Drop City, province, latitute, longitude, and hourly measurements.
+pols_final <- pols_all[, -c(
+    "CITY", "PROVINCE", "LATITUDE", "LONGITUDE", paste0("H", 1:24)
+)]
+
+# Reorder cols.
+data.table::setcolorder(pols_final,
+                        c("NAPSID", "DATE", "POLLUTANT", "MEAN", "MAX", "MIN", "MEAN_WNA", "MAX_WNA", "MIN_WNA", "N_NA")
+)
