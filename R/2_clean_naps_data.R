@@ -51,3 +51,71 @@ pol_year_summ <- pol_year[
     j  = .(YEAR_MIN = min(YEAR), YEAR_MAX = max(YEAR)),
     by = "POL"
 ]
+
+
+# Batch processing of all pollutant -------------------------------------------
+
+
+# Loop on all pollutant. Save results to <naps_path>.
+for (pol in pol_year_summ$POL) {
+
+    # Years available for the pollutant.
+    years <- pol_year_summ[POL == pol, seq.int(YEAR_MIN, YEAR_MAX)]
+
+    # Message.
+    message("Processing ", pol, " from ", min(years), " to ", max(years), ".")
+
+    # Files for the pollutant.
+    files_pol <- file.path(naps_path, "raw", paste0(pol, "_", years, ".csv"))
+
+    # Load all files of the pollutant.
+    data_pol <- lapply(files_pol, load_pol, pol = tolower(pol))
+
+    # Checks for the number of columns.
+    if (!all(alleq(do.call(cbind, lapply(data_pol, ncol))))) {
+        stop("Inconsistent number of columns for ", pol, ".")
+    }
+
+    # Check for the names of the columns.
+    if (!all(alleq(do.call(cbind, lapply(data_pol, colnames))))) {
+        stop("Inconsistent columns names for ", pol, ".")
+    }
+
+    # Check for the format of the columns,
+    if (!all(alleq(do.call(cbind, lapply(data_pol, getclass))))) {
+        stop("Inconsistent classes of the columns for ", pol, ".")
+    }
+
+    # Bind all tables.
+    data_pol_bind <- do.call(rbind, data_pol)
+
+    # Replace -999 and -9999 by NA.
+    for (h in 1:24) {
+
+        # Fix values to NA (-999)
+        data.table::set(
+            x     = data_pol_bind,
+            j     = paste0("H", h),
+            i     = which(data_pol_bind[[paste0("H", h)]] %in% c(-999, -9999)),
+            value = NA
+        )
+
+        # Check if negative values remains.
+        if (any(data_pol_bind[[paste0("H", h)]] < -900, na.rm = TRUE)) {
+            stop("Values of -999/-9999 remains in the data for column ", h, ".")
+        }
+    }
+
+    # Save to .csv.
+    data.table::fwrite(
+        x    = data_pol_bind,
+        file = file.path(naps_path, paste0(pol, ".csv")),
+        dec  = ",",
+        sep  = ";"
+    )
+
+    # Message.
+    message("Saved to ", naps_path, "/", pol, ".csv.")
+
+}
+
